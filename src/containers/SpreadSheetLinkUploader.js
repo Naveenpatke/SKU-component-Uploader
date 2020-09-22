@@ -21,24 +21,28 @@ class SpreadSheetLinkUploader extends Component {
     }
 
     uploadSpreadsheetData = () => {
-        console.log("Spreadsheets Data - ",this.props.SpreadsheetsDataObject);
+        console.log("Spreadsheets Data - ", this.props.SpreadsheetsDataObject);
+        this.props.onClear();
     }
 
     render() {
         return (
             <div>
-                <div style={{margin: '10px'}}>
+                <div style={{ margin: '10px' }}>
                     <h3>Spreadsheet Link:</h3>
-                    <Input 
+                    <Input
                         className='inputField'
                         placeholder='Spreadsheet Link'
-                         type='text' value={this.state.inputText} 
-                         onChange={(e) => this.setState({ inputText: e.target.value })} 
+                        type='text' value={this.state.inputText}
+                        onChange={(e) => this.setState({ inputText: e.target.value })}
+                        onPressEnter={this.onAdd}
                     />
                     <div className="button">
                         <Button onClick={this.props.onClear} style={{ marginRight: '10px' }}>Clear All</Button>
-                        <Button type="primary" onClick={this.onAdd} disabled={this.state.inputText.length === 0}>Add</Button>
-                        <Button onClick={this.uploadSpreadsheetData}>Upload</Button>
+                        <Button type="primary" style={{ marginRight: '10px' }} onClick={this.onAdd}
+                            disabled={this.state.inputText.length === 0}>Add</Button>
+                        <Button type="primary" onClick={this.uploadSpreadsheetData}
+                            disabled={this.props.SpreadsheetLinks.length === 0}>Upload</Button>
                     </div>
                 </div>
                 <StackingLayout>

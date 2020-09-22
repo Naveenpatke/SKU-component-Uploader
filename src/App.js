@@ -4,6 +4,10 @@ import SpreadSheetLinkUploader from './containers/SpreadSheetLinkUploader';
 //import GoogleSpreadsheetUploader from './containers/GoogleSpreadsheetUploader';
 import { GoogleApiConnector, GoogleApiServices } from './containers/GoogleSheetServiceApi';
 import 'antd/dist/antd.css';
+import { message, Alert } from 'antd';
+
+// regex to extract spreadsheetId from google spreadsheet Link
+const regex = '/spreadsheets/d/([a-zA-Z0-9-_]+)';
 
 class App extends React.Component {
   constructor(props) {
@@ -11,29 +15,48 @@ class App extends React.Component {
     this.state = {
       SpreadsheetLinks: [],
       spreadsheetsDataObject: {},
-      loader: false
+      loader: false,
+      error: false
     }
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.loader) {
+      message.loading('Action in progress', 1.3);
+    }
+    if (prevState.SpreadsheetLinks.length + 1 === this.state.SpreadsheetLinks.length) {
+      message.success("Loading Successful", 1.0);
+    }
+  }
   /* 
   * onAdd - this handler is used to add the new input value into the list
   * @param {String}
   */
   onAdd = async (link) => {
+    try {
+      // To check whether the given spreadsheet link is whether valid
+      if (!link.match(regex)) {
+        throw new Error('Invalid link');
+      }
+      else {
+        this.setState({ loader: true, error: false });
+        const googleApiConnector = new GoogleApiConnector();
+        const accessToken = await googleApiConnector.connect();
 
-    const googleApiConnector = new GoogleApiConnector();
-    const accessToken = await googleApiConnector.connect();
+        const googleApiServices = new GoogleApiServices();
+        const spreadsheetDataObject = await googleApiServices.getSpreadsheetData(link, accessToken);
 
-    const googleApiServices = new GoogleApiServices();
-    const spreadsheetDataObject = await googleApiServices.getSpreadsheetData(link, accessToken);
-    
-    const tempList = [link, ...this.state.SpreadsheetLinks];
-    const tempSpreadsheetObject = { ...this.state.spreadsheetsDataObject, ...spreadsheetDataObject }
-    this.setState({
-      SpreadsheetLinks: tempList,
-      spreadsheetsDataObject: tempSpreadsheetObject
-    });
-
+        const tempList = [link, ...this.state.SpreadsheetLinks];
+        const tempSpreadsheetObject = { ...this.state.spreadsheetsDataObject, ...spreadsheetDataObject }
+        this.setState({
+          SpreadsheetLinks: tempList,
+          spreadsheetsDataObject: tempSpreadsheetObject,
+          loader: false
+        });
+      }
+    } catch (err) {
+      this.setState({ error: true, loader: false });
+    }
   };
 
   /*
@@ -47,15 +70,20 @@ class App extends React.Component {
   * onCLear - this handler is used clear all the entries in to SpreadsheetLinks list
   */
   onClear = () => {
-    console.log(this.state.spreadsheetsDataObject)
-    this.setState({ SpreadsheetLinks: [] });
+    //console.log(this.state.spreadsheetsDataObject)
+    this.setState({ SpreadsheetLinks: [], spreadsheetsDataObject: {} });
     console.log("Cleared Data");
   }
 
   render() {
     return (
-      <div className="App" >
+      <div className="App">
         {/* <GoogleSpreadsheetUploader SpreadsheetLinks={this.state.SpreadsheetLinks} onClear={this.onClear}/> */}
+        {this.state.error ? <Alert
+          message="Alert message"
+          description="Given Spreadsheet link is either invalid or you dont have permission to access this spreadsheet."
+          type="error" />
+        : ''}
         <SpreadSheetLinkUploader
           onAdd={this.onAdd}
           onDelete={this.onDelete}
