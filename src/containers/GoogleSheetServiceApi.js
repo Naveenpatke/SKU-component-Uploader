@@ -46,7 +46,7 @@ export class GoogleApiConnector {
             if (!accessToken) {
                 throw new Error(genericMessage);
             }
-            return accessToken
+            document.cookie = `accessToken=${accessToken}`;
         } catch (err) {
             throw new Error(genericMessage);
         }
@@ -92,7 +92,7 @@ export class GoogleApiServices {
         })
         const spreadsheetDetails = await response.data;
         var sheetTitle = spreadsheetDetails.sheets[0].properties.title;
-        console.log("sheetTitle", sheetTitle);
+        //console.log("sheetTitle", sheetTitle);
         return sheetTitle;
     }
 

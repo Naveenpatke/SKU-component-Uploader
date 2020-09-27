@@ -20,14 +20,48 @@ class App extends React.Component {
     }
   }
 
+  componentDidMount() {
+    const googleApiConnector = new GoogleApiConnector();
+    googleApiConnector.connect();
+    setInterval(function () {
+      const googleApiConnector = new GoogleApiConnector();
+      googleApiConnector.connect();
+    }, 100000);
+  }
+
   componentDidUpdate(prevProps, prevState) {
     if (this.state.loader) {
-      message.loading('Action in progress', 1.3);
+      message.loading('Action in progress', 1.4);
     }
     if (prevState.SpreadsheetLinks.length + 1 === this.state.SpreadsheetLinks.length) {
       message.success("Loading Successful", 1.0);
     }
   }
+
+  componentWillUnmount(){
+    document.cookie= "accessToken=";
+  }
+
+  /* 
+  * getCookie - this handler is used to retrieve accessToken from the browsers cookies
+  * @param {String} - cname - cookie name
+  */
+  getCookie = (cname) => {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+      var c = ca[i];
+      while (c.charAt(0) === ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) === 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return "";
+  }
+
   /* 
   * onAdd - this handler is used to add the new input value into the list
   * @param {String}
@@ -40,8 +74,7 @@ class App extends React.Component {
       }
       else {
         this.setState({ loader: true, error: false });
-        const googleApiConnector = new GoogleApiConnector();
-        const accessToken = await googleApiConnector.connect();
+        const accessToken = this.getCookie("accessToken");
 
         const googleApiServices = new GoogleApiServices();
         const spreadsheetDataObject = await googleApiServices.getSpreadsheetData(link, accessToken);
@@ -70,9 +103,7 @@ class App extends React.Component {
   * onCLear - this handler is used clear all the entries in to SpreadsheetLinks list
   */
   onClear = () => {
-    //console.log(this.state.spreadsheetsDataObject)
     this.setState({ SpreadsheetLinks: [], spreadsheetsDataObject: {} });
-    console.log("Cleared Data");
   }
 
   render() {
@@ -83,7 +114,7 @@ class App extends React.Component {
           message="Alert message"
           description="Given Spreadsheet link is either invalid or you dont have permission to access this spreadsheet."
           type="error" />
-        : ''}
+          : ''}
         <SpreadSheetLinkUploader
           onAdd={this.onAdd}
           onDelete={this.onDelete}

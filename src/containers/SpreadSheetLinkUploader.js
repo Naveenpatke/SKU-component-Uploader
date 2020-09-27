@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Input, Button, List, Skeleton } from 'antd';
+import { Input, Button, List, Skeleton, message, Tooltip } from 'antd';
 import { StackingLayout } from 'prism-reactjs';
 import '../App.css';
 
@@ -20,7 +20,11 @@ class SpreadSheetLinkUploader extends Component {
         this.setState({ inputText: '' });
     }
 
+    /*
+    * uploadSpreadsheetData - this handler is used to display the data related to all the spreadsheets being uploaded 
+    */
     uploadSpreadsheetData = () => {
+        message.success("Upload Successful");
         console.log("Spreadsheets Data - ", this.props.SpreadsheetsDataObject);
         this.props.onClear();
     }
@@ -39,10 +43,14 @@ class SpreadSheetLinkUploader extends Component {
                     />
                     <div className="button">
                         <Button onClick={this.props.onClear} style={{ marginRight: '10px' }}>Clear All</Button>
-                        <Button type="primary" style={{ marginRight: '10px' }} onClick={this.onAdd}
-                            disabled={this.state.inputText.length === 0}>Add</Button>
-                        <Button type="primary" onClick={this.uploadSpreadsheetData}
-                            disabled={this.props.SpreadsheetLinks.length === 0}>Upload</Button>
+                        <Tooltip title={this.state.inputText.length === 0 ? 'Add Link to enable' : 'Add Link'}>
+                            <Button type="primary" style={{ marginRight: '10px' }} onClick={this.onAdd}
+                                disabled={this.state.inputText.length === 0}>Add</Button>
+                        </Tooltip>
+                        <Tooltip title={this.props.SpreadsheetLinks.length === 0 ? 'Add Links to enable' : 'Upload'}>
+                            <Button type="primary" onClick={this.uploadSpreadsheetData}
+                                disabled={this.props.SpreadsheetLinks.length === 0}>Upload</Button>
+                        </Tooltip>
                     </div>
                 </div>
                 <StackingLayout>
