@@ -5,6 +5,7 @@ import SpreadSheetLinkUploader from './containers/SpreadSheetLinkUploader';
 import { GoogleApiConnector, GoogleApiServices } from './containers/GoogleSheetServiceApi';
 import 'antd/dist/antd.css';
 import { message, Alert } from 'antd';
+import UploadExcel from './containers/UploadExcel';
 
 // regex to extract spreadsheetId from google spreadsheet Link
 const regex = '/spreadsheets/d/([a-zA-Z0-9-_]+)';
@@ -122,6 +123,8 @@ class App extends React.Component {
           onClear={this.onClear}
           SpreadsheetsDataObject={this.state.spreadsheetsDataObject}
         />
+        <br/>
+        <UploadExcel />
       </div>
     );
 

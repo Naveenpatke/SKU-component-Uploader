@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Input, Button, List, Skeleton, message, Tooltip } from 'antd';
 import { StackingLayout } from 'prism-reactjs';
+import {componentDetailsFormat} from '../utils/ComponetDetailsFormat';
 import '../App.css';
 
 class SpreadSheetLinkUploader extends Component {
@@ -24,8 +25,15 @@ class SpreadSheetLinkUploader extends Component {
     * uploadSpreadsheetData - this handler is used to display the data related to all the spreadsheets being uploaded 
     */
     uploadSpreadsheetData = () => {
-        message.success("Upload Successful");
+        var componentsToAdd = [];
         console.log("Spreadsheets Data - ", this.props.SpreadsheetsDataObject);
+        Object.keys(this.props.SpreadsheetsDataObject).map((spreadsheetID, index)=> {
+            var tempComponentObjectsArray = [];
+            tempComponentObjectsArray = componentDetailsFormat(this.props.SpreadsheetsDataObject[spreadsheetID], 'Naveen');
+            componentsToAdd = [...componentsToAdd, ...tempComponentObjectsArray];
+        })
+        message.success("Upload Successful");
+        console.log("Spreadsheets Data converted to component Data Object - ", componentsToAdd);
         this.props.onClear();
     }
 

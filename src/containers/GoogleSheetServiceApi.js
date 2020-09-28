@@ -69,7 +69,7 @@ export class GoogleApiServices {
                 result[columnName[index]] = cellData;
                 return result;
             }, {});
-            sheetDataObject[result["External_ID__c"]] = result;
+            sheetDataObject[result["ProductCode"]] = result;
         }
         return sheetDataObject;
     }
@@ -117,7 +117,8 @@ export class GoogleApiServices {
         });
 
         const sheetData = response.data;
-        const sheetDataObject = await this.formatSheetData(sheetData);
+        const sheetDataObject = {};
+        sheetDataObject['ProductData'] = this.formatSheetData(sheetData);
         const tempDataObject = {};
         tempDataObject[spreadsheetId] = sheetDataObject;
         return tempDataObject;
