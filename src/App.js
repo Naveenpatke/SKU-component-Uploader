@@ -4,7 +4,7 @@ import SpreadSheetLinkUploader from './containers/SpreadSheetLinkUploader';
 //import GoogleSpreadsheetUploader from './containers/GoogleSpreadsheetUploader';
 import { GoogleApiConnector, GoogleApiServices } from './containers/GoogleSheetServiceApi';
 import 'antd/dist/antd.css';
-import { message, Alert } from 'antd';
+import { message, Alert, Modal, Button } from 'antd';
 import UploadExcel from './containers/UploadExcel';
 
 // regex to extract spreadsheetId from google spreadsheet Link
@@ -17,7 +17,8 @@ class App extends React.Component {
       SpreadsheetLinks: [],
       spreadsheetsDataObject: {},
       loader: false,
-      error: false
+      error: false,
+      uploadSpreadsheetModalVisible: false
     }
   }
 
@@ -39,8 +40,8 @@ class App extends React.Component {
     }
   }
 
-  componentWillUnmount(){
-    document.cookie= "accessToken=";
+  componentWillUnmount() {
+    document.cookie = "accessToken=";
   }
 
   /* 
@@ -107,23 +108,42 @@ class App extends React.Component {
     this.setState({ SpreadsheetLinks: [], spreadsheetsDataObject: {} });
   }
 
+  uploadSpreadsheetModal = () => {
+    return(<Modal
+      visible={this.state.uploadSpreadsheetModalVisible}
+      title="Upload Spreadsheet Link"
+      onOk={() => this.setState({ uploadSpreadsheetModalVisible: false })}
+      onCancel={() => this.setState({ uploadSpreadsheetModalVisible: false, error: false, })}
+      footer={[
+        <Button key="submit" type="primary" onClick={() => this.setState({ uploadSpreadsheetModalVisible: false })}>
+          Done
+            </Button>,
+      ]}
+    >
+      {this.state.error && <Alert
+        message="Failed"
+        description="Given Spreadsheet link is either invalid or you dont have permission to access this spreadsheet."
+        type="error" />}
+      <SpreadSheetLinkUploader
+        onAdd={this.onAdd}
+        onDelete={this.onDelete}
+        SpreadsheetLinks={this.state.SpreadsheetLinks}
+        onClear={this.onClear}
+        SpreadsheetsDataObject={this.state.spreadsheetsDataObject}
+      />
+    </Modal>)
+  }
   render() {
     return (
       <div className="App">
-        {/* <GoogleSpreadsheetUploader SpreadsheetLinks={this.state.SpreadsheetLinks} onClear={this.onClear}/> */}
-        {this.state.error ? <Alert
-          message="Alert message"
-          description="Given Spreadsheet link is either invalid or you dont have permission to access this spreadsheet."
-          type="error" />
-          : ''}
-        <SpreadSheetLinkUploader
-          onAdd={this.onAdd}
-          onDelete={this.onDelete}
-          SpreadsheetLinks={this.state.SpreadsheetLinks}
-          onClear={this.onClear}
-          SpreadsheetsDataObject={this.state.spreadsheetsDataObject}
-        />
-        <br/>
+        {this.uploadSpreadsheetModal()}
+        <h1 style={{marginRight: '10px'}}>Component Data Uploaders  </h1>
+        <Button type="primary" 
+          onClick={()=>this.setState({uploadSpreadsheetModalVisible: true})}
+          style={{marginRight: '5px'}}
+        >Upload Spreadsheet Link</Button>
+        <br />
+        <br />
         <UploadExcel />
       </div>
     );
